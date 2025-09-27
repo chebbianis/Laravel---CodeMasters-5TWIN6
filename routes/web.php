@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EventController;
+
 
 // Page d'accueil avec login/inscription
 Route::get('/', function () {
@@ -61,14 +63,6 @@ Route::get('/collection-points/deposits', function () {
 })->name('collection.deposits');
 
 // Gestion des événements et ateliers
-Route::get('/events', function () {
-    return view('events.index');
-})->name('events.index');
-
-Route::get('/events/workshops', function () {
-    return view('events.workshops');
-})->name('events.workshops');
-
-Route::get('/events/participations', function () {
-    return view('events.participations');
-})->name('events.participations');
+Route::get('events/workshops', [EventController::class, 'workshops'])->name('events.workshops');
+Route::get('events/participations', [EventController::class, 'participations'])->name('events.participations');
+Route::resource('events', EventController::class)->except(['edit']);

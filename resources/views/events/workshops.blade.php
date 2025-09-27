@@ -315,15 +315,15 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2>🎯 Événements</h2>
-            <p>Gestion des Ateliers</p>
+            <h2>Waste To Product</h2>
         </div>
-        
         <nav class="sidebar-nav">
-            <a href="{{ route('dashboard') }}">← Tableau de Bord</a>
-            <a href="{{ route('events.index') }}">Vue d'ensemble</a>
-            <a href="{{ route('events.workshops') }}" class="active">Ateliers & Conférences</a>
-            <a href="{{ route('events.participations') }}">Inscriptions</a>
+            <a href="{{ route('dashboard') }}">Dashboard</a>
+            <a href="{{ route('events.index') }}" class="active">Événements</a>
+            <a href="{{ route('events.participations') }}">Participations</a>
+            <a href="{{ route('catalog.index') }}">Catalogue</a>
+            <a href="{{ route('partners.index') }}">Partenaires</a>
+            <a href="{{ route('collection.index') }}">Collecte</a>
         </nav>
     </div>
 
@@ -331,210 +331,186 @@
     <div class="main-content">
         <!-- Page Header -->
         <div class="page-header">
-            <h1>Ateliers et Conférences</h1>
-            <button class="btn btn-success" onclick="openAddModal()">+ Nouvel Événement</button>
+            <h1>Ateliers & Conférences</h1>
+            <button class="btn btn-success" onclick="openAddModal()">+ Ajouter un événement</button>
         </div>
 
-        <!-- Filters -->
+        <!-- Filters (optionnel, à compléter si besoin) -->
         <div class="filters">
             <div class="filter-group">
-                <label>Type d'événement</label>
-                <select>
-                    <option value="">Tous les types</option>
+                <label for="type">Type</label>
+                <select id="type" name="type">
+                    <option value="">Tous</option>
                     <option value="workshop">Atelier</option>
                     <option value="conference">Conférence</option>
                     <option value="repair">Repair Café</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>Statut</label>
-                <select>
-                    <option value="">Tous les statuts</option>
-                    <option value="planned">Planifié</option>
-                    <option value="ongoing">En cours</option>
-                    <option value="completed">Terminé</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Date début</label>
-                <input type="date">
-            </div>
-            <div class="filter-group">
-                <label>Date fin</label>
-                <input type="date">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date">
             </div>
         </div>
 
-        <!-- Events Grid -->
+        <!-- Events Grid dynamique -->
         <div class="events-grid">
-            <!-- Atelier de Réparation -->
+            @foreach($events as $event)
             <div class="event-card">
-                <div class="event-type workshop">🔧 ATELIER DE RÉPARATION</div>
+                <div class="event-type {{ $event->type }}">
+                    @if($event->type == 'workshop') 🔧 ATELIER DE RÉPARATION
+                    @elseif($event->type == 'conference') 🎓 CONFÉRENCE
+                    @elseif($event->type == 'repair') ♻️ ATELIER CRÉATIF
+                    @endif
+                </div>
                 <div class="event-content">
-                    <h3 class="event-title">Repair Café - Électroménager</h3>
+                    <h3 class="event-title">{{ $event->title }}</h3>
                     <div class="event-info">
                         <div class="event-info-item">
                             <span>📅</span>
-                            <span>Samedi 15 Février 2025</span>
+                            <span>{{ \Carbon\Carbon::parse($event->date)->translatedFormat('l d F Y') }}</span>
                         </div>
                         <div class="event-info-item">
                             <span>⏰</span>
-                            <span>14h00 - 17h00</span>
+                            <span>{{ \Carbon\Carbon::parse($event->date)->format('H:i') }}</span>
                         </div>
                         <div class="event-info-item">
                             <span>📍</span>
-                            <span>Centre Communautaire - Salle A</span>
+                            <span>{{ $event->location }}</span>
                         </div>
                         <div class="event-info-item">
                             <span>👥</span>
-                            <span>15/20 participants</span>
+                            <span>{{ $event->participations->count() }}/{{ $event->max_participants }} participants</span>
                         </div>
                     </div>
                     <div class="event-actions">
-                        <button class="btn btn-edit">Modifier</button>
-                        <button class="btn btn-delete">Supprimer</button>
+                        <button class="btn btn-edit"
+                            onclick="openEditModal(
+                                {{ $event->id }},
+                                '{{ addslashes($event->title) }}',
+                                '{{ $event->type }}',
+                                `{{ addslashes($event->description) }}`,
+                                '{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}',
+                                '{{ $event->start_time ?? '' }}',
+                                '{{ $event->end_time ?? '' }}',
+                                '{{ addslashes($event->location) }}',
+                                '{{ $event->max_participants }}'
+                            )">
+                            Modifier
+                        </button>
+                        <form action="{{ route('events.destroy', $event) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-delete" onclick="return confirm('Supprimer cet événement ?')">Supprimer</button>
+                        </form>
                     </div>
                 </div>
             </div>
-
-            <!-- Conférence -->
-            <div class="event-card">
-                <div class="event-type conference">🎓 CONFÉRENCE</div>
-                <div class="event-content">
-                    <h3 class="event-title">Économie Circulaire : Défis et Opportunités</h3>
-                    <div class="event-info">
-                        <div class="event-info-item">
-                            <span>📅</span>
-                            <span>Mercredi 20 Février 2025</span>
-                        </div>
-                        <div class="event-info-item">
-                            <span>⏰</span>
-                            <span>18h30 - 20h30</span>
-                        </div>
-                        <div class="event-info-item">
-                            <span>📍</span>
-                            <span>Amphithéâtre Université</span>
-                        </div>
-                        <div class="event-info-item">
-                            <span>👥</span>
-                            <span>45/80 participants</span>
-                        </div>
-                    </div>
-                    <div class="event-actions">
-                        <button class="btn btn-edit">Modifier</button>
-                        <button class="btn btn-delete">Supprimer</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Atelier Upcycling -->
-            <div class="event-card">
-                <div class="event-type repair">♻️ ATELIER CRÉATIF</div>
-                <div class="event-content">
-                    <h3 class="event-title">Upcycling : Transformez vos déchets</h3>
-                    <div class="event-info">
-                        <div class="event-info-item">
-                            <span>📅</span>
-                            <span>Samedi 25 Février 2025</span>
-                        </div>
-                        <div class="event-info-item">
-                            <span>⏰</span>
-                            <span>10h00 - 16h00</span>
-                        </div>
-                        <div class="event-info-item">
-                            <span>📍</span>
-                            <span>Fablab Local</span>
-                        </div>
-                        <div class="event-info-item">
-                            <span>👥</span>
-                            <span>8/12 participants</span>
-                        </div>
-                    </div>
-                    <div class="event-actions">
-                        <button class="btn btn-edit">Modifier</button>
-                        <button class="btn btn-delete">Supprimer</button>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 
-    <!-- Add Event Modal -->
-    <div id="addEventModal" class="modal">
+    <!-- Add/Edit Event Modal (utilisé pour les deux) -->
+    <div id="eventModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeAddModal()">&times;</button>
-            <h2>Créer un Nouvel Événement</h2>
-            
-            <form>
+            <button class="close-modal" onclick="closeEventModal()">&times;</button>
+            <h2 id="modalTitle">Créer un Nouvel Événement</h2>
+            <form id="eventForm" method="POST">
+                @csrf
+                <input type="hidden" name="_method" id="formMethod" value="POST">
                 <div class="form-group">
                     <label>Titre de l'événement</label>
-                    <input type="text" placeholder="Ex: Repair Café - Vélos" required>
+                    <input type="text" name="title" id="event_title" required>
                 </div>
-                
                 <div class="form-group">
                     <label>Type d'événement</label>
-                    <select required>
+                    <select name="type" id="event_type" required>
                         <option value="">Choisir un type</option>
                         <option value="workshop">Atelier</option>
                         <option value="conference">Conférence</option>
                         <option value="repair">Repair Café</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea placeholder="Description détaillée de l'événement..." required></textarea>
+                    <textarea name="description" id="event_description" required></textarea>
                 </div>
-                
                 <div class="form-group">
                     <label>Date</label>
-                    <input type="date" required>
+                    <input type="date" name="date" id="event_date" required>
                 </div>
-                
                 <div class="form-group">
                     <label>Heure de début</label>
-                    <input type="time" required>
+                    <input type="time" name="start_time" id="event_start_time">
                 </div>
-                
                 <div class="form-group">
                     <label>Heure de fin</label>
-                    <input type="time" required>
+                    <input type="time" name="end_time" id="event_end_time">
                 </div>
-                
                 <div class="form-group">
                     <label>Lieu</label>
-                    <input type="text" placeholder="Adresse ou nom du lieu" required>
+                    <input type="text" name="location" id="event_location" required>
                 </div>
-                
                 <div class="form-group">
                     <label>Nombre maximum de participants</label>
-                    <input type="number" min="1" placeholder="20" required>
+                    <input type="number" min="1" name="max_participants" id="event_max_participants" required>
                 </div>
-                
                 <div class="form-actions">
-                    <button type="button" class="btn btn-cancel" onclick="closeAddModal()">Annuler</button>
-                    <button type="submit" class="btn btn-success">Créer l'Événement</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeEventModal()">Annuler</button>
+                    <button type="submit" class="btn btn-success" id="submitBtn">Créer l'Événement</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        // Ouvre le modal pour l'ajout
         function openAddModal() {
-            document.getElementById('addEventModal').style.display = 'block';
+            document.getElementById('eventModal').style.display = 'block';
+            document.getElementById('modalTitle').innerText = "Créer un Nouvel Événement";
+            document.getElementById('eventForm').action = "{{ route('events.store') }}";
+            document.getElementById('formMethod').value = "POST";
+            document.getElementById('submitBtn').innerText = "Créer l'Événement";
+            // Vide les champs
+            document.getElementById('event_title').value = "";
+            document.getElementById('event_type').value = "";
+            document.getElementById('event_description').value = "";
+            document.getElementById('event_date').value = "";
+            document.getElementById('event_start_time').value = "";
+            document.getElementById('event_end_time').value = "";
+            document.getElementById('event_location').value = "";
+            document.getElementById('event_max_participants').value = "";
         }
-        
-        function closeAddModal() {
-            document.getElementById('addEventModal').style.display = 'none';
+
+        // Ouvre le modal pour la modification
+        function openEditModal(id, title, type, description, date, start_time, end_time, location, max_participants) {
+            document.getElementById('eventModal').style.display = 'block';
+            document.getElementById('modalTitle').innerText = "Modifier l'Événement";
+            document.getElementById('eventForm').action = "/events/" + id;
+            document.getElementById('formMethod').value = "PUT";
+            document.getElementById('submitBtn').innerText = "Enregistrer";
+            // Remplit les champs
+            document.getElementById('event_title').value = title;
+            document.getElementById('event_type').value = type;
+            document.getElementById('event_description').value = description;
+            document.getElementById('event_date').value = date;
+            document.getElementById('event_start_time').value = start_time;
+            document.getElementById('event_end_time').value = end_time;
+            document.getElementById('event_location').value = location;
+            document.getElementById('event_max_participants').value = max_participants;
         }
-        
-        // Fermer la modal en cliquant en dehors
+
+        function closeEventModal() {
+            document.getElementById('eventModal').style.display = 'none';
+        }
+
         window.onclick = function(event) {
-            const modal = document.getElementById('addEventModal');
-            if (event.target === modal) {
-                closeAddModal();
+            var modal = document.getElementById('eventModal');
+            if (event.target == modal) {
+                closeEventModal();
             }
         }
     </script>
 </body>
+
+
 </html>

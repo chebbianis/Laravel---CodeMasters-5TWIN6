@@ -19,8 +19,7 @@ return new class extends Migration
             $table->dateTime('date');
             $table->string('location', 255);
             $table->integer('max_participants')->nullable();
-            $table->foreignId('organizer_id')->constrained('users')->onDelete('cascade');
-            $table->string('status', 20)->default('planifié');
+$table->unsignedBigInteger('organizer_id')->nullable();            $table->string('status', 20)->default('planifié');
             $table->timestamps();
         });
     }
