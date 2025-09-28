@@ -176,6 +176,15 @@
             font-size: 0.9rem;
         }
 
+        .detail-item a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .detail-item a:hover {
+            text-decoration: underline;
+        }
+
         .detail-icon {
             margin-right: 0.5rem;
             width: 16px;
@@ -331,21 +340,31 @@
         </header>
 
         <div class="content">
+            @if(session('success'))
+                <div style="background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #c3e6cb;">
+                    ✅ {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #f5c6cb;">
+                    ❌ {{ session('error') }}
+                </div>
+            @endif
+
             <div class="page-actions">
-                <h2>Nos Partenaires (56)</h2>
-                <button onclick="openModal('addModal')" class="btn-primary">+ Ajouter un Partenaire</button>
+                <h2>Nos Partenaires ({{ $partners->total() }})</h2>
+                <a href="{{ route('partners.create') }}" class="btn-primary">+ Ajouter un Partenaire</a>
             </div>
 
             <!-- Filtres -->
             <div class="filters">
                 <input type="text" placeholder="Rechercher un partenaire..." style="flex: 1; min-width: 250px;">
-                <select style="width: 180px;">
+                <select style="width: 180px;" id="typeFilter">
                     <option value="">Tous les types</option>
-                    <option value="ong">ONG</option>
-                    <option value="municipalite">Municipalité</option>
-                    <option value="entreprise">Entreprise</option>
-                    <option value="association">Association</option>
-                    <option value="etablissement">Établissement Public</option>
+                    @foreach($partnerTypes as $type)
+                        <option value="{{ $type->name }}">{{ $type->name }}</option>
+                    @endforeach
                 </select>
                 <select style="width: 150px;">
                     <option value="">Tous les statuts</option>
@@ -356,162 +375,101 @@
 
             <!-- Grille des partenaires -->
             <div class="partners-grid">
-                <!-- Partenaire 1 -->
+                @forelse($partners as $partner)
                 <div class="partner-card">
                     <div class="partner-header">
-                        <div class="partner-avatar" style="background: #d4edda;">🌱</div>
+                        @php
+                            $typeColors = [
+                                'ONG' => '#d4edda',
+                                'Municipalité' => '#cce5ff', 
+                                'Entreprise' => '#fff3cd',
+                                'Association' => '#d1ecf1',
+                                'Établissement Public' => '#e2e3f0'
+                            ];
+                            $typeIcons = [
+                                'ONG' => '🌱',
+                                'Municipalité' => '🏛️',
+                                'Entreprise' => '🏢', 
+                                'Association' => '👥',
+                                'Établissement Public' => '🏤'
+                            ];
+                            $typeClasses = [
+                                'ONG' => 'type-ong',
+                                'Municipalité' => 'type-municipalite',
+                                'Entreprise' => 'type-entreprise',
+                                'Association' => 'type-association', 
+                                'Établissement Public' => 'type-etablissement'
+                            ];
+                            $typeName = $partner->type->name ?? '';
+                        @endphp
+                        <div class="partner-avatar" style="background: {{ $typeColors[$typeName] ?? '#e2e3f0' }};">
+                            {{ $typeIcons[$typeName] ?? '🏢' }}
+                        </div>
                         <div class="partner-info">
-                            <h3>Eco-Citoyens 78</h3>
-                            <span class="partner-type type-ong">Association</span>
+                            <h3>{{ $partner->name }}</h3>
+                            <span class="partner-type {{ $typeClasses[$typeName] ?? 'type-etablissement' }}">
+                                {{ $partner->type->name ?? 'Non défini' }}
+                            </span>
                         </div>
                     </div>
                     
                     <div class="partner-details">
                         <div class="detail-item">
                             <span class="detail-icon">📧</span>
-                            <span>contact@ecocitoyens78.fr</span>
+                            <span>{{ $partner->contact_email }}</span>
                         </div>
+                        @if($partner->phone)
                         <div class="detail-item">
                             <span class="detail-icon">📞</span>
-                            <span>01 34 56 78 90</span>
+                            <span>{{ $partner->phone }}</span>
                         </div>
+                        @endif
+                        @if($partner->address)
                         <div class="detail-item">
                             <span class="detail-icon">📍</span>
-                            <span>Versailles, 78000</span>
+                            <span>{{ $partner->address }}</span>
                         </div>
+                        @endif
+                        @if($partner->website)
                         <div class="detail-item">
                             <span class="detail-icon">🌐</span>
-                            <span>www.ecocitoyens78.fr</span>
+                            <span><a href="{{ $partner->website }}" target="_blank">{{ str_replace(['http://', 'https://'], '', $partner->website) }}</a></span>
                         </div>
+                        @endif
                     </div>
                     
                     <div class="partner-status">
-                        <span class="status-badge status-active">● Actif</span>
+                        <span class="status-badge {{ $partner->is_active ? 'status-active' : 'status-inactive' }}">
+                            ● {{ $partner->is_active ? 'Actif' : 'Inactif' }}
+                        </span>
                         <div class="partner-actions">
-                            <button class="btn-sm btn-view">👁️</button>
-                            <button class="btn-sm btn-edit" onclick="openEditModal('ecocitoyens')">✏️</button>
-                            <button class="btn-sm btn-delete">🗑️</button>
+                            <a href="{{ route('partners.show', $partner) }}" class="btn-sm btn-view">👁️</a>
+                            <a href="{{ route('partners.edit', $partner) }}" class="btn-sm btn-edit">✏️</a>
+                            <form action="{{ route('partners.destroy', $partner) }}" method="POST" style="display: inline;" 
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce partenaire ?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-sm btn-delete">🗑️</button>
+                            </form>
                         </div>
                     </div>
                 </div>
-
-                <!-- Partenaire 2 -->
-                <div class="partner-card">
-                    <div class="partner-header">
-                        <div class="partner-avatar" style="background: #cce5ff;">🏛️</div>
-                        <div class="partner-info">
-                            <h3>Mairie de Paris</h3>
-                            <span class="partner-type type-municipalite">Municipalité</span>
-                        </div>
-                    </div>
-                    
-                    <div class="partner-details">
-                        <div class="detail-item">
-                            <span class="detail-icon">📧</span>
-                            <span>environnement@paris.fr</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">📞</span>
-                            <span>01 42 76 40 00</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">📍</span>
-                            <span>Paris, 75001</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">🌐</span>
-                            <span>www.paris.fr</span>
-                        </div>
-                    </div>
-                    
-                    <div class="partner-status">
-                        <span class="status-badge status-active">● Actif</span>
-                        <div class="partner-actions">
-                            <button class="btn-sm btn-view">👁️</button>
-                            <button class="btn-sm btn-edit" onclick="openEditModal('paris')">✏️</button>
-                            <button class="btn-sm btn-delete">🗑️</button>
-                        </div>
-                    </div>
+                @empty
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🤝</div>
+                    <h3>Aucun partenaire trouvé</h3>
+                    <p>Commencez par ajouter votre premier partenaire.</p>
+                    <a href="{{ route('partners.create') }}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">+ Ajouter un Partenaire</a>
                 </div>
-
-                <!-- Partenaire 3 -->
-                <div class="partner-card">
-                    <div class="partner-header">
-                        <div class="partner-avatar" style="background: #fff3cd;">🏢</div>
-                        <div class="partner-info">
-                            <h3>GreenTech Solutions</h3>
-                            <span class="partner-type type-entreprise">Entreprise</span>
-                        </div>
-                    </div>
-                    
-                    <div class="partner-details">
-                        <div class="detail-item">
-                            <span class="detail-icon">📧</span>
-                            <span>partenariats@greentech.com</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">📞</span>
-                            <span>01 45 67 89 10</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">📍</span>
-                            <span>Lyon, 69000</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">🌐</span>
-                            <span>www.greentech-solutions.com</span>
-                        </div>
-                    </div>
-                    
-                    <div class="partner-status">
-                        <span class="status-badge status-active">● Actif</span>
-                        <div class="partner-actions">
-                            <button class="btn-sm btn-view">👁️</button>
-                            <button class="btn-sm btn-edit" onclick="openEditModal('greentech')">✏️</button>
-                            <button class="btn-sm btn-delete">🗑️</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Partenaire 4 -->
-                <div class="partner-card">
-                    <div class="partner-header">
-                        <div class="partner-avatar" style="background: #d1ecf1;">👥</div>
-                        <div class="partner-info">
-                            <h3>Repair Café France</h3>
-                            <span class="partner-type type-association">Association</span>
-                        </div>
-                    </div>
-                    
-                    <div class="partner-details">
-                        <div class="detail-item">
-                            <span class="detail-icon">📧</span>
-                            <span>info@repaircafe.fr</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">📞</span>
-                            <span>01 23 45 67 89</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">📍</span>
-                            <span>Marseille, 13000</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-icon">🌐</span>
-                            <span>www.repaircafe.fr</span>
-                        </div>
-                    </div>
-                    
-                    <div class="partner-status">
-                        <span class="status-badge status-inactive">● Inactif</span>
-                        <div class="partner-actions">
-                            <button class="btn-sm btn-view">👁️</button>
-                            <button class="btn-sm btn-edit" onclick="openEditModal('repaircafe')">✏️</button>
-                            <button class="btn-sm btn-delete">🗑️</button>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
+
+            @if($partners->hasPages())
+            <!-- Pagination -->
+            <div style="margin-top: 2rem; text-align: center;">
+                {{ $partners->links() }}
+            </div>
+            @endif
         </div>
     </main>
 

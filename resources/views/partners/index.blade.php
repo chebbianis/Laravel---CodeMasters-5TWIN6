@@ -301,30 +301,7 @@
                     <a href="{{ route('partners.types') }}" class="btn">Gérer les Types</a>
                 </div>
 
-                <div class="feature-card">
-                    <h3><span class="icon">📊</span> Suivi des Collaborations</h3>
-                    <p>Analysez l'efficacité de vos partenariats et identifiez les opportunités de nouvelles collaborations dans l'économie circulaire.</p>
-                    <a href="#" class="btn">Voir les Statistiques</a>
-                </div>
 
-                <div class="feature-card">
-                    <h3><span class="icon">📧</span> Communication</h3>
-                    <p>Envoyez des newsletters, des invitations aux événements et maintenez le contact avec votre réseau de partenaires.</p>
-                    <a href="#" class="btn">Communication</a>
-                </div>
-
-                <div class="feature-card">
-                    <h3><span class="icon">🌍</span> Cartographie</h3>
-                    <p>Visualisez vos partenaires sur une carte pour identifier les zones de couverture et optimiser votre réseau territorial.</p>
-                    <a href="#" class="btn">Voir la Carte</a>
-                </div>
-
-                <div class="feature-card">
-                    <h3><span class="icon">📝</span> Conventions</h3>
-                    <p>Gérez les conventions de partenariat, suivez les échéances et maintenez la documentation juridique à jour.</p>
-                    <a href="#" class="btn">Gérer les Conventions</a>
-                </div>
-            </div>
         </div>
     </main>
 </body>

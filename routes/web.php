@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\PartnerTypeController;
 
 // Page d'accueil avec login/inscription
 Route::get('/', function () {
@@ -34,18 +36,23 @@ Route::get('/catalog/categories', function () {
     return view('catalog.categories');
 })->name('catalog.categories');
 
-// Gestion des partenaires
-Route::get('/partners', function () {
-    return view('partners.index');
-})->name('partners.index');
+// Pages publiques
+Route::get('/nos-partenaires', [App\Http\Controllers\PartnerController::class, 'publicPartners'])->name('partners.public');
+Route::get('/about', function () {
+    return redirect()->route('home');
+})->name('about');
 
-Route::get('/partners/list', function () {
-    return view('partners.list');
-})->name('partners.list');
+// Gestion des partenaires - Routes spécifiques AVANT la route resource
+Route::get('/partners', [App\Http\Controllers\PartnerController::class, 'index'])->name('partners.index');
+Route::get('/partners/list', [App\Http\Controllers\PartnerController::class, 'list'])->name('partners.list');
+Route::get('/partners/data', [App\Http\Controllers\PartnerController::class, 'getPartnersData'])->name('partners.data');
+Route::get('/partners/types', [App\Http\Controllers\PartnerTypeController::class, 'index'])->name('partners.types');
 
-Route::get('/partners/types', function () {
-    return view('partners.types');
-})->name('partners.types');
+// Routes resource après les routes spécifiques
+Route::resource('partners', App\Http\Controllers\PartnerController::class)->except(['index']);
+
+// Gestion des types de partenaires
+Route::resource('partner-types', App\Http\Controllers\PartnerTypeController::class)->except(['index']);
 
 // Gestion des points de collecte
 Route::get('/collection-points', function () {

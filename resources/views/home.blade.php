@@ -214,8 +214,9 @@
         <nav class="container">
             <div class="logo">🔄 Waste To Product</div>
             <div class="nav-links">
-                <a href="#home">Accueil</a>
-                <a href="#about">À propos</a>
+                <a href="{{ route('home') }}">Accueil</a>
+                <a href="{{ route('dashboard') }}">Dashboard</a>
+                <a href="{{ route('about') }}">À propos</a>
                 <a href="#contact">Contact</a>
             </div>
         </nav>
@@ -284,7 +285,7 @@
                         <h3>Catalogue des Objets</h3>
                         <p>Inventaire central des objets valorisables avec catégorisation et suivi du statut</p>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card" onclick="window.location.href='{{ route('partners.public') }}'" style="cursor: pointer;">
                         <div class="feature-icon">🤝</div>
                         <h3>Gestion des Partenaires</h3>
                         <p>Réseau d'organisations collaboratrices pour des actions conjointes</p>
