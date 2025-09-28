@@ -33,18 +33,18 @@ class Participation extends Model
     }
 
     // Scopes pour les statuts
-    public function scopeRegistered($query)
+    public function scopePending($query)   // en attente
     {
-        return $query->where('status', 'inscrit');
+        return $query->where('status', 'pending');
     }
 
-    public function scopePresent($query)
+    public function scopeConfirmed($query) // confirmé
     {
-        return $query->where('status', 'présent');
+        return $query->where('status', 'confirmed');
     }
 
-    public function scopeAbsent($query)
+    public function scopeCancelled($query) // annulé
     {
-        return $query->where('status', 'absent');
+        return $query->where('status', 'cancelled');
     }
 }

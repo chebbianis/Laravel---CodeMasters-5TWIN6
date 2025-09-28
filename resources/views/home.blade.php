@@ -296,7 +296,7 @@
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🎪</div>
-                        <h3>Événements & Ateliers</h3>
+                        <a href="{{ route('events-front') }}">Événements & Ateliers</a>
                         <p>Organisation d'ateliers de réparation et événements de sensibilisation</p>
                     </div>
                 </div>

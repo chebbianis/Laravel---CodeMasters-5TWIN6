@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('participations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->dateTime('registration_date');
-            $table->string('status', 20)->default('inscrit');
+            $table->string('status')->default('pending');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

@@ -53,14 +53,41 @@ class EventController extends Controller
         return redirect()->route('events.workshops')->with('success', 'Événement supprimé');
     }
 
-    public function workshops() {
-        $events = Event::orderBy('date', 'asc')->get();
-        return view('events.workshops', compact('events'));
+    public function workshops(Request $request)
+{
+    $query = Event::query();
+
+    if ($request->filled('type')) {
+        $query->where('type', $request->type);
     }
 
-    public function participations(Request $request) {
-        $events = Event::with(['participations.user'])->get();
-        $participations = Participation::with(['event', 'user'])->latest()->get();
-        return view('events.participations', compact('events', 'participations'));
+    if ($request->filled('date')) {
+        $query->whereDate('date', $request->date);
+    }
+
+    $events = $query->orderBy('date', 'asc')->get();
+
+    return view('events.workshops', compact('events'));
+}
+
+
+    public function participations(Request $request)
+{
+    $events = Event::with('participations')->get();
+
+    $stats = [
+        'total' => Participation::count(),
+        'confirmed' => Participation::where('status', 'confirmed')->count(),
+        'pending' => Participation::where('status', 'pending')->count(),
+        'cancelled' => Participation::where('status', 'cancelled')->count(),
+    ];
+
+    return view('events.participations', compact('events', 'stats'));
+}
+public function export($format)
+    {
+        // Ici tu peux gérer l'export Excel, CSV ou PDF
+        // Exemple simple :
+        return "Export demandé au format : " . $format;
     }
 }

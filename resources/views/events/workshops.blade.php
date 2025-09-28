@@ -5,309 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ateliers et Conférences - Waste To Product</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8fafc;
-            line-height: 1.6;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; line-height: 1.6; }
+
         /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100vh;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem 0;
-            overflow-y: auto;
-        }
-        
-        .sidebar-header {
-            text-align: center;
-            padding: 0 1rem 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .sidebar-nav {
-            padding: 2rem 0;
-        }
-        
-        .sidebar-nav a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 1rem 2rem;
-            transition: background 0.3s;
-            border-left: 3px solid transparent;
-        }
-        
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active {
-            background: rgba(255,255,255,0.1);
-            border-left-color: white;
-        }
-        
+        .sidebar { position: fixed; top: 0; left: 0; width: 250px; height: 100vh; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; overflow-y: auto; }
+        .sidebar-header { text-align: center; padding: 0 1rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .sidebar-nav { padding: 2rem 0; }
+        .sidebar-nav a { display: block; color: white; text-decoration: none; padding: 1rem 2rem; transition: background 0.3s; border-left: 3px solid transparent; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: rgba(255,255,255,0.1); border-left-color: white; }
+
         /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            padding: 2rem;
-        }
-        
-        .page-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .page-header h1 {
-            color: #333;
-            font-size: 2.2rem;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #9C27B0 0%, #E91E63 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: transform 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-        }
-        
+        .main-content { margin-left: 250px; padding: 2rem; }
+        .page-header { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .page-header h1 { color: #333; font-size: 2.2rem; }
+
+        .btn { padding: 12px 24px; background: linear-gradient(135deg, #9C27B0 0%, #E91E63 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: transform 0.3s ease; border: none; cursor: pointer; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-success { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); }
+
         /* Filters */
-        .filters {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .filter-group label {
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .filter-group select,
-        .filter-group input {
-            padding: 8px 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        
+        .filters { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-group label { font-weight: 500; color: #333; }
+        .filter-group select, .filter-group input { padding: 8px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; }
+
         /* Events Grid */
-        .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-        
-        .event-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease;
-        }
-        
-        .event-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .event-card .event-type {
-            padding: 1rem;
-            color: white;
-            text-align: center;
-            font-weight: 600;
-        }
-        
-        .event-type.workshop {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-        }
-        
-        .event-type.conference {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-        }
-        
-        .event-type.repair {
-            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-        }
-        
-        .event-card .event-content {
-            padding: 2rem;
-        }
-        
-        .event-card .event-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-        
-        .event-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            margin-bottom: 2rem;
-        }
-        
-        .event-info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #666;
-        }
-        
-        .event-actions {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .btn-edit {
-            background: #17a2b8;
-            flex: 1;
-        }
-        
-        .btn-delete {
-            background: #dc3545;
-            flex: 1;
-        }
-        
-        /* Add Event Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 3rem;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal h2 {
-            margin-bottom: 2rem;
-            color: #333;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
-        
-        .btn-cancel {
-            background: #6c757d;
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #999;
-        }
-        
-        /* Responsive */
+        .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; }
+        .event-card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s ease; }
+        .event-card:hover { transform: translateY(-5px); }
+        .event-card .event-type { padding: 1rem; color: white; text-align: center; font-weight: 600; }
+        .event-type.workshop { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); }
+        .event-type.conference { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); }
+        .event-type.repair { background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); }
+        .event-card .event-content { padding: 2rem; }
+        .event-card .event-title { font-size: 1.4rem; font-weight: 600; color: #333; margin-bottom: 1rem; }
+        .event-info { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 2rem; }
+        .event-info-item { display: flex; align-items: center; gap: 0.5rem; color: #666; }
+        .event-actions { display: flex; gap: 1rem; }
+        .btn-edit { background: #17a2b8; flex: 1; }
+        .btn-delete { background: #dc3545; flex: 1; }
+
+        /* Add/Edit Event Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 3rem; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal h2 { margin-bottom: 2rem; color: #333; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; }
+        .btn-cancel { background: #6c757d; }
+        .close-modal { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 2rem; cursor: pointer; color: #999; }
+
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-            
-            .page-header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .filters {
-                flex-direction: column;
-            }
-            
-            .events-grid {
-                grid-template-columns: 1fr;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; padding: 1rem; }
+            .page-header { flex-direction: column; gap: 1rem; text-align: center; }
+            .filters { flex-direction: column; }
+            .events-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -335,24 +91,29 @@
             <button class="btn btn-success" onclick="openAddModal()">+ Ajouter un événement</button>
         </div>
 
-        <!-- Filters (optionnel, à compléter si besoin) -->
+        <!-- Filters -->
         <div class="filters">
-            <div class="filter-group">
-                <label for="type">Type</label>
-                <select id="type" name="type">
-                    <option value="">Tous</option>
-                    <option value="workshop">Atelier</option>
-                    <option value="conference">Conférence</option>
-                    <option value="repair">Repair Café</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="date">Date</label>
-                <input type="date" id="date" name="date">
-            </div>
+            <form method="GET" action="{{ route('events.workshops') }}" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <div class="filter-group">
+                    <label for="type">Type</label>
+                    <select id="type" name="type">
+                        <option value="">Tous</option>
+                        <option value="workshop" @selected(request('type') == 'workshop')>Atelier</option>
+                        <option value="conference" @selected(request('type') == 'conference')>Conférence</option>
+                        <option value="repair" @selected(request('type') == 'repair')>Repair Café</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" value="{{ request('date') }}">
+                </div>
+                <div class="filter-group" style="align-self:flex-end;">
+                    <button type="submit" class="btn">Filtrer</button>
+                </div>
+            </form>
         </div>
 
-        <!-- Events Grid dynamique -->
+        <!-- Events Grid -->
         <div class="events-grid">
             @foreach($events as $event)
             <div class="event-card">
@@ -409,7 +170,7 @@
         </div>
     </div>
 
-    <!-- Add/Edit Event Modal (utilisé pour les deux) -->
+    <!-- Add/Edit Event Modal -->
     <div id="eventModal" class="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeEventModal()">&times;</button>
@@ -463,7 +224,6 @@
     </div>
 
     <script>
-        // Ouvre le modal pour l'ajout
         function openAddModal() {
             document.getElementById('eventModal').style.display = 'block';
             document.getElementById('modalTitle').innerText = "Créer un Nouvel Événement";
@@ -481,14 +241,12 @@
             document.getElementById('event_max_participants').value = "";
         }
 
-        // Ouvre le modal pour la modification
         function openEditModal(id, title, type, description, date, start_time, end_time, location, max_participants) {
             document.getElementById('eventModal').style.display = 'block';
             document.getElementById('modalTitle').innerText = "Modifier l'Événement";
             document.getElementById('eventForm').action = "/events/" + id;
             document.getElementById('formMethod').value = "PUT";
             document.getElementById('submitBtn').innerText = "Enregistrer";
-            // Remplit les champs
             document.getElementById('event_title').value = title;
             document.getElementById('event_type').value = type;
             document.getElementById('event_description').value = description;
@@ -511,6 +269,4 @@
         }
     </script>
 </body>
-
-
 </html>
