@@ -5,6 +5,8 @@ use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PartnerTypeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ItemController;
 
 // Page d'accueil avec login/inscription
 Route::get('/', function () {
@@ -29,17 +31,22 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     // Gestion du catalogue des objets valorables
-    Route::get('/catalog', function () {
-        return view('catalog.index');
-    })->name('catalog.index');
+    Route::get('/catalog', [ItemController::class, 'catalogIndex'])->name('catalog.index');
 
-    Route::get('/catalog/items', function () {
-        return view('catalog.items');
-    })->name('catalog.items');
+    // Routes pour les objets (Items)
+    Route::get('/catalog/items', [ItemController::class, 'index'])->name('catalog.items');
+    Route::post('/catalog/items', [ItemController::class, 'store'])->name('catalog.items.store');
+    Route::put('/catalog/items/{id}', [ItemController::class, 'update'])->name('catalog.items.update');
+    Route::delete('/catalog/items/{id}', [ItemController::class, 'destroy'])->name('catalog.items.destroy');
 
-    Route::get('/catalog/categories', function () {
-        return view('catalog.categories');
-    })->name('catalog.categories');
+    // Routes pour les catégories
+    Route::get('/catalog/categories', [CategoryController::class, 'index'])->name('catalog.categories');
+    Route::post('/catalog/categories', [CategoryController::class, 'store'])->name('catalog.categories.store');
+    Route::put('/catalog/categories/{id}', [CategoryController::class, 'update'])->name('catalog.categories.update');
+    Route::delete('/catalog/categories/{id}', [CategoryController::class, 'destroy'])->name('catalog.categories.destroy');
+
+    // Page publique du catalogue (accessible aux utilisateurs connectés)
+    Route::get('/catalogue', [ItemController::class, 'publicCatalog'])->name('catalog.public');
 
     // Gestion des partenaires - Routes spécifiques AVANT la route resource
     Route::get('/partners', [App\Http\Controllers\PartnerController::class, 'index'])->name('partners.index');

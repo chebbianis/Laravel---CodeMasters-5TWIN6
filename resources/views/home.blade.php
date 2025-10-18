@@ -325,6 +325,8 @@
             <div class="logo">🔄 Waste To Product</div>
             <div class="nav-links">
                 <a href="{{ route('home') }}">Accueil</a>
+                <a href="{{ route('catalog.public') }}">Catalogue</a>
+                <a href="{{ route('partners.public') }}">Partenaires</a>
                 @auth
                     @if(Auth::user()->isAdmin())
                         <a href="{{ route('dashboard') }}">Dashboard</a>
@@ -379,7 +381,7 @@
                 <h2 style="text-align: center; color: white; margin-bottom: 2rem;">Nos Fonctionnalités</h2>
                 <div class="features-grid">
                     @auth
-                        <div class="feature-card" onclick="window.location.href='{{ route('catalog.items') }}'" style="cursor: pointer;">
+                        <div class="feature-card" onclick="window.location.href='{{ route('catalog.public') }}'" style="cursor: pointer;">
                             <div class="feature-icon">📦</div>
                             <h3>Catalogue des Objets</h3>
                             <p>Inventaire central des objets valorisables avec catégorisation et suivi du statut</p>

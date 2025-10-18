@@ -29,12 +29,12 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:4'
         ], [
             'email.required' => 'L\'adresse email est obligatoire',
             'email.email' => 'L\'adresse email doit être valide',
             'password.required' => 'Le mot de passe est obligatoire',
-            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères'
+            'password.min' => 'Le mot de passe doit contenir au moins 4 caractères'
         ]);
 
         if ($validator->fails()) {
@@ -82,7 +82,7 @@ class AuthController extends Controller
             'email' => 'required|email|max:100|unique:users,email',
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:4|confirmed',
         ], [
             'username.required' => 'Le nom d\'utilisateur est obligatoire',
             'username.unique' => 'Ce nom d\'utilisateur est déjà utilisé',
@@ -92,7 +92,7 @@ class AuthController extends Controller
             'first_name.required' => 'Le prénom est obligatoire',
             'last_name.required' => 'Le nom est obligatoire',
             'password.required' => 'Le mot de passe est obligatoire',
-            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères',
+            'password.min' => 'Le mot de passe doit contenir au moins 4 caractères',
             'password.confirmed' => 'Les mots de passe ne correspondent pas'
         ]);
 
@@ -163,7 +163,7 @@ class AuthController extends Controller
             'email' => 'required|email|max:100|unique:users,email',
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:4|confirmed',
         ]);
 
         if ($validator->fails()) {
