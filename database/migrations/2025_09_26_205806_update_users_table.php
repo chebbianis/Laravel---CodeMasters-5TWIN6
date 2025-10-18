@@ -31,6 +31,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            // D'abord supprimer la contrainte de clé étrangère
+            $table->dropForeign(['role_id']);
+            
             // Restaurer la colonne 'name'
             $table->string('name')->after('id');
             

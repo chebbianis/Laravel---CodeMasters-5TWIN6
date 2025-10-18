@@ -79,6 +79,30 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .form-group input.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
         .btn {
             width: 100%;
             padding: 1rem;
@@ -145,37 +169,101 @@
             <p>Rejoignez notre communauté</p>
         </div>
 
-        <form action="{{ route('register') }}" method="POST">
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <ul style="margin: 0; padding-left: 1.2rem;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('register.post') }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="username">Nom d'utilisateur</label>
-                <input type="text" id="username" name="username" placeholder="votre_nom_utilisateur" required>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username"
+                    class="@error('username') is-invalid @enderror"
+                    value="{{ old('username') }}"
+                    placeholder="votre_nom_utilisateur" 
+                    required>
+                @error('username')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="email">Adresse email</label>
-                <input type="email" id="email" name="email" placeholder="votre.email@exemple.com" required>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email"
+                    class="@error('email') is-invalid @enderror"
+                    value="{{ old('email') }}"
+                    placeholder="votre.email@exemple.com" 
+                    required>
+                @error('email')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label for="first_name">Prénom</label>
-                    <input type="text" id="first_name" name="first_name" placeholder="John" required>
+                    <input 
+                        type="text" 
+                        id="first_name" 
+                        name="first_name"
+                        class="@error('first_name') is-invalid @enderror"
+                        value="{{ old('first_name') }}"
+                        placeholder="John" 
+                        required>
+                    @error('first_name')
+                        <span class="invalid-feedback">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="last_name">Nom</label>
-                    <input type="text" id="last_name" name="last_name" placeholder="Doe" required>
+                    <input 
+                        type="text" 
+                        id="last_name" 
+                        name="last_name"
+                        class="@error('last_name') is-invalid @enderror"
+                        value="{{ old('last_name') }}"
+                        placeholder="Doe" 
+                        required>
+                    @error('last_name')
+                        <span class="invalid-feedback">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password"
+                    class="@error('password') is-invalid @enderror"
+                    placeholder="••••••••" 
+                    required>
+                @error('password')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="password_confirmation">Confirmer le mot de passe</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" placeholder="••••••••" required>
+                <input 
+                    type="password" 
+                    id="password_confirmation" 
+                    name="password_confirmation"
+                    placeholder="••••••••" 
+                    required>
             </div>
 
             <button type="submit" class="btn">S'inscrire</button>

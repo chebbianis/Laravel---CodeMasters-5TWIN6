@@ -72,6 +72,55 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .form-group input.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-check input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .form-check label {
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
         .btn {
             width: 100%;
             padding: 1rem;
@@ -132,16 +181,53 @@
             <p>Connexion à votre espace</p>
         </div>
 
-        <form action="{{ route('login') }}" method="POST">
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if($errors->has('email') && !$errors->has('password'))
+            <div class="alert alert-danger">
+                {{ $errors->first('email') }}
+            </div>
+        @endif
+
+        <form action="{{ route('login.post') }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="email">Adresse email</label>
-                <input type="email" id="email" name="email" placeholder="votre.email@exemple.com" required>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email"
+                    class="@error('email') is-invalid @enderror"
+                    value="{{ old('email') }}"
+                    placeholder="votre.email@exemple.com" 
+                    required 
+                    autofocus>
+                @error('email')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password"
+                    class="@error('password') is-invalid @enderror"
+                    placeholder="••••••••" 
+                    required>
+                @error('password')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-check">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Se souvenir de moi</label>
             </div>
 
             <button type="submit" class="btn">Se connecter</button>

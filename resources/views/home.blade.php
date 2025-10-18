@@ -50,6 +50,7 @@
         .nav-links {
             display: flex;
             gap: 2rem;
+            align-items: center;
         }
 
         .nav-links a {
@@ -62,6 +63,35 @@
 
         .nav-links a:hover {
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-login, .btn-register {
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-login {
+            color: #667eea;
+        }
+
+        .btn-login:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .btn-register {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-register:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
         }
 
         .hero {
@@ -82,6 +112,47 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .cta-btn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cta-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .cta-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
         }
 
         .auth-section {
@@ -193,6 +264,34 @@
             padding: 2rem 0;
         }
 
+        .alert {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 999;
+            animation: slideIn 0.5s ease;
+        }
+
+        .alert-success {
+            background: white;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 768px) {
             .auth-section {
                 grid-template-columns: 1fr;
@@ -210,14 +309,39 @@
     </style>
 </head>
 <body>
+    @if(session('success'))
+        <div class="alert alert-success">
+            ✅ {{ session('success') }}
+        </div>
+        <script>
+            setTimeout(() => {
+                document.querySelector('.alert').style.display = 'none';
+            }, 5000);
+        </script>
+    @endif
+
     <header>
         <nav class="container">
             <div class="logo">🔄 Waste To Product</div>
             <div class="nav-links">
                 <a href="{{ route('home') }}">Accueil</a>
-                <a href="{{ route('dashboard') }}">Dashboard</a>
-                <a href="{{ route('about') }}">À propos</a>
-                <a href="#contact">Contact</a>
+                @auth
+                    @if(Auth::user()->isAdmin())
+                        <a href="{{ route('dashboard') }}">Dashboard</a>
+                    @endif
+                    <span style="color: white; padding: 0.5rem 1rem;">
+                        👤 {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}
+                    </span>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline; margin: 0;">
+                        @csrf
+                        <button type="submit" style="background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid white; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            🚪 Déconnexion
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="btn-login">Connexion</a>
+                    <a href="{{ route('register') }}" class="btn-register">Inscription</a>
+                @endauth
             </div>
         </nav>
     </header>
@@ -227,81 +351,89 @@
             <div class="container">
                 <h1>Waste To Product</h1>
                 <p>Une initiative qui valorise les déchets en leur donnant une seconde vie à travers le réemploi, la réparation ou la transformation. Rejoignez l'économie circulaire !</p>
+                @auth
+                    <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); padding: 1.5rem; border-radius: 15px; margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        <p style="color: white; font-size: 1.3rem; margin-bottom: 1rem;">
+                            ✨ Bienvenue, <strong>{{ Auth::user()->first_name }}</strong> !
+                        </p>
+                        <p style="color: rgba(255, 255, 255, 0.9); font-size: 1rem;">
+                            Rôle: <strong>{{ Auth::user()->isAdmin() ? '👑 Administrateur' : '👤 Utilisateur' }}</strong>
+                        </p>
+                    </div>
+                @else
+                    <div class="cta-buttons">
+                        <a href="{{ route('login') }}" class="cta-btn cta-primary">
+                            🔐 Se Connecter
+                        </a>
+                        <a href="{{ route('register') }}" class="cta-btn cta-secondary">
+                            ✨ Créer un Compte
+                        </a>
+                    </div>
+                @endauth
             </div>
         </section>
 
-        <section class="auth-section">
-            <!-- Formulaire de Connexion -->
-            <div class="auth-form">
-                <h2>🔑 Connexion</h2>
-                <form action="{{ route('login') }}" method="POST">
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input type="email" id="login-email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Mot de passe</label>
-                        <input type="password" id="login-password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn">Se connecter</button>
-                </form>
-            </div>
-
-            <!-- Formulaire d'Inscription -->
-            <div class="auth-form">
-                <h2>✨ Inscription</h2>
-                <form action="{{ route('register') }}" method="POST">
-                    <div class="form-group">
-                        <label for="register-username">Nom d'utilisateur</label>
-                        <input type="text" id="register-username" name="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-email">Email</label>
-                        <input type="email" id="register-email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-first_name">Prénom</label>
-                        <input type="text" id="register-first_name" name="first_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-last_name">Nom</label>
-                        <input type="text" id="register-last_name" name="last_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-password">Mot de passe</label>
-                        <input type="password" id="register-password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn">S'inscrire</button>
-                </form>
-            </div>
-        </section>
 
         <section class="features">
             <div class="container">
                 <h2 style="text-align: center; color: white; margin-bottom: 2rem;">Nos Fonctionnalités</h2>
                 <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">📦</div>
-                        <h3>Catalogue des Objets</h3>
-                        <p>Inventaire central des objets valorisables avec catégorisation et suivi du statut</p>
-                    </div>
-                    <div class="feature-card" onclick="window.location.href='{{ route('partners.public') }}'" style="cursor: pointer;">
-                        <div class="feature-icon">🤝</div>
-                        <h3>Gestion des Partenaires</h3>
-                        <p>Réseau d'organisations collaboratrices pour des actions conjointes</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📍</div>
-                        <h3>Points de Collecte</h3>
-                        <p>Géolocalisation et gestion des points de collecte avec suivi en temps réel</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🎪</div>
-                        <h3>Événements & Ateliers</h3>
-                        <p>Organisation d'ateliers de réparation et événements de sensibilisation</p>
-                    </div>
-                </div>
-            </div>
+                    @auth
+                        <div class="feature-card" onclick="window.location.href='{{ route('catalog.items') }}'" style="cursor: pointer;">
+                            <div class="feature-icon">📦</div>
+                            <h3>Catalogue des Objets</h3>
+                            <p>Inventaire central des objets valorisables avec catégorisation et suivi du statut</p>
+                        </div>
+                        <div class="feature-card" onclick="window.location.href='{{ route('partners.public') }}'" style="cursor: pointer;">
+                            <div class="feature-icon">🤝</div>
+                            <h3>Réseau de Partenaires</h3>
+                            <p>Réseau d'organisations collaboratrices pour des actions conjointes</p>
+                        </div>
+                        <div class="feature-card" onclick="window.location.href='{{ route('collection.points') }}'" style="cursor: pointer;">
+                            <div class="feature-icon">📍</div>
+                            <h3>Points de Collecte</h3>
+                            <p>Géolocalisation et gestion des points de collecte avec suivi en temps réel</p>
+                        </div>
+                        <div class="feature-card" onclick="window.location.href='{{ route('events.workshops') }}'" style="cursor: pointer;">
+                            <div class="feature-icon">🎪</div>
+                            <h3>Événements & Ateliers</h3>
+                            <p>Organisation d'ateliers de réparation et événements de sensibilisation</p>
+                        </div>
+                        @if(Auth::user()->isAdmin())
+                            <div class="feature-card" onclick="window.location.href='{{ route('admin.users.index') }}'" style="cursor: pointer; border: 3px solid #ff6b6b;">
+                                <div class="feature-icon">👥</div>
+                                <h3>Gérer les Utilisateurs</h3>
+                                <p>Administration des comptes utilisateurs et des rôles</p>
+                            </div>
+                            <div class="feature-card" onclick="window.location.href='{{ route('partners.types') }}'" style="cursor: pointer; border: 3px solid #ff6b6b;">
+                                <div class="feature-icon">🏷️</div>
+                                <h3>Types de Partenaires</h3>
+                                <p>Gestion des catégories de partenaires</p>
+                            </div>
+                        @endif
+                    @else
+                        <div class="feature-card">
+                            <div class="feature-icon">📦</div>
+                            <h3>Catalogue des Objets</h3>
+                            <p>Inventaire central des objets valorisables avec catégorisation et suivi du statut</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🤝</div>
+                            <h3>Réseau de Partenaires</h3>
+                            <p>Réseau d'organisations collaboratrices pour des actions conjointes</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📍</div>
+                            <h3>Points de Collecte</h3>
+                            <p>Géolocalisation et gestion des points de collecte avec suivi en temps réel</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎪</div>
+                            <h3>Événements & Ateliers</h3>
+                            <p>Organisation d'ateliers de réparation et événements de sensibilisation</p>
+                        </div>
+                    @endauth
+
         </section>
     </main>
 

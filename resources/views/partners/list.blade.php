@@ -354,7 +354,15 @@
 
             <div class="page-actions">
                 <h2>Nos Partenaires ({{ $partners->total() }})</h2>
-                <a href="{{ route('partners.create') }}" class="btn-primary">+ Ajouter un Partenaire</a>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{{ route('partners.map') }}" class="btn-primary" style="background: linear-gradient(135deg, #28a745, #218838);">
+                        🗺️ Vue Carte
+                    </a>
+                    <a href="{{ route('partners.stats') }}" class="btn-primary" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+                        📊 Statistiques
+                    </a>
+                    <a href="{{ route('partners.create') }}" class="btn-primary">+ Ajouter un Partenaire</a>
+                </div>
             </div>
 
             <!-- Filtres -->

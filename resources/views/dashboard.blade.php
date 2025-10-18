@@ -97,6 +97,23 @@
             gap: 1rem;
         }
 
+        .user-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .badge-user {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
         .logout-btn {
             padding: 0.5rem 1rem;
             background: #e74c3c;
@@ -226,33 +243,51 @@
         <header class="header">
             <h1>Tableau de Bord</h1>
             <div class="user-info">
-                <span>Bienvenue, Admin</span>
-                <a href="{{ route('home') }}" class="logout-btn">Déconnexion</a>
+                <span class="user-badge {{ Auth::user()->isAdmin() ? 'badge-admin' : 'badge-user' }}">
+                    {{ Auth::user()->isAdmin() ? '👑 Admin' : '👤 Utilisateur' }}
+                </span>
+                <span>Bienvenue, {{ Auth::user()->first_name }}</span>
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="logout-btn">Déconnexion</button>
+                </form>
             </div>
         </header>
 
         <div class="dashboard-content">
+            @if(session('success'))
+                <div style="background: #d4edda; color: #155724; padding: 1rem; border-radius: 10px; margin: 1rem 2rem; border-left: 4px solid #28a745;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 10px; margin: 1rem 2rem; border-left: 4px solid #dc3545;">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <!-- Statistiques -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="icon">📦</div>
                     <h3>Objets Valorisables</h3>
-                    <div class="number">1,234</div>
+                    <div class="number">{{ \App\Models\Item::count() }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon">🤝</div>
                     <h3>Partenaires Actifs</h3>
-                    <div class="number">56</div>
+                    <div class="number">{{ \App\Models\Partner::count() }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon">📍</div>
                     <h3>Points de Collecte</h3>
-                    <div class="number">89</div>
+                    <div class="number">{{ \App\Models\CollectionPoint::count() }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon">🎪</div>
-                    <h3>Événements ce mois</h3>
-                    <div class="number">12</div>
+                    <h3>Événements à venir</h3>
+                    <div class="number">{{ \App\Models\Event::where('date', '>=', now())->count() }}</div>
                 </div>
             </div>
 
@@ -264,18 +299,45 @@
                         <span class="icon">📦</span>
                         <span>Gérer les Objets</span>
                     </a>
-                    <a href="{{ route('partners.list') }}" class="action-btn">
-                        <span class="icon">🤝</span>
-                        <span>Gérer les Partenaires</span>
-                    </a>
+                    @if(Auth::user()->isAdmin())
+                        <a href="{{ route('admin.users.index') }}" class="action-btn">
+                            <span class="icon">👥</span>
+                            <span>Gérer les Utilisateurs</span>
+                        </a>
+                        <a href="{{ route('partners.list') }}" class="action-btn">
+                            <span class="icon">🤝</span>
+                            <span>Gérer les Partenaires</span>
+                        </a>
+                        <a href="{{ route('partners.types') }}" class="action-btn">
+                            <span class="icon">🏷️</span>
+                            <span>Types de Partenaires</span>
+                        </a>
+                    @else
+                        <a href="{{ route('partners.public') }}" class="action-btn">
+                            <span class="icon">🤝</span>
+                            <span>Voir les Partenaires</span>
+                        </a>
+                    @endif
                     <a href="{{ route('collection.points') }}" class="action-btn">
                         <span class="icon">📍</span>
                         <span>Points de Collecte</span>
                     </a>
                     <a href="{{ route('events.workshops') }}" class="action-btn">
                         <span class="icon">🎪</span>
-                        <span>Créer un Événement</span>
+                        <span>{{ Auth::user()->isAdmin() ? 'Créer un Événement' : 'Voir les Événements' }}</span>
                     </a>
+                </div>
+            </div>
+
+            <!-- Informations du profil -->
+            <div class="quick-actions" style="margin-top: 2rem;">
+                <h2>Mon Profil</h2>
+                <div style="background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <p><strong>Nom complet:</strong> {{ Auth::user()->full_name }}</p>
+                    <p><strong>Email:</strong> {{ Auth::user()->email }}</p>
+                    <p><strong>Nom d'utilisateur:</strong> {{ Auth::user()->username }}</p>
+                    <p><strong>Rôle:</strong> {{ Auth::user()->isAdmin() ? 'Administrateur' : 'Utilisateur' }}</p>
+                    <p><strong>Dernière connexion:</strong> {{ Auth::user()->last_login ? Auth::user()->last_login->diffForHumans() : 'Première connexion' }}</p>
                 </div>
             </div>
         </div>

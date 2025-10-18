@@ -44,6 +44,64 @@ class PartnerController extends Controller
     }
 
     /**
+     * Display statistics page for partners.
+     */
+    public function stats()
+    {
+        $partners = Partner::with(['type'])->get();
+        $partnerTypes = PartnerType::all();
+        
+        // Statistiques générales
+        $totalPartners = $partners->count();
+        $activePartners = $partners->where('is_active', true)->count();
+        $partnersWithEmail = $partners->whereNotNull('contact_email')->count();
+        $partnersWithPhone = $partners->whereNotNull('phone')->count();
+        $partnersWithWebsite = $partners->whereNotNull('website')->count();
+        $partnersWithAddress = $partners->whereNotNull('address')->count();
+        
+        // Répartition par type
+        $typeData = $partners->groupBy('type.name');
+        $typeNames = $typeData->keys()->toArray();
+        $typeCounts = $typeData->map(function($group) {
+            return $group->count();
+        })->values()->toArray();
+        
+        // Type le plus commun
+        $mostCommonType = $typeData->sortByDesc(function($group) {
+            return $group->count();
+        })->keys()->first() ?? 'N/A';
+        $mostCommonTypeCount = $typeData->sortByDesc(function($group) {
+            return $group->count();
+        })->first()->count() ?? 0;
+        
+        return view('partners.stats', compact(
+            'partners', 
+            'partnerTypes', 
+            'totalPartners', 
+            'activePartners',
+            'partnersWithEmail',
+            'partnersWithPhone',
+            'partnersWithWebsite',
+            'partnersWithAddress',
+            'typeNames',
+            'typeCounts',
+            'mostCommonType',
+            'mostCommonTypeCount'
+        ));
+    }
+
+    /**
+     * Display map view of partners.
+     */
+    public function map()
+    {
+        $partners = Partner::with(['type'])->get();
+        $partnerTypes = PartnerType::all();
+        
+        return view('partners.map', compact('partners', 'partnerTypes'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
