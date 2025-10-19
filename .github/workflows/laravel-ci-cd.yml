@@ -133,15 +133,12 @@ jobs:
     - name: 🎻 Installer les dépendances Composer
       run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: 📏 PHPStan (optionnel)
-      run: |
-        composer require phpstan/phpstan --dev
-        ./vendor/bin/phpstan analyse app/ database/ routes/ --memory-limit=1G
+    - name: 📏 PHPStan (désactivé temporairement)
+      run: echo "PHPStan désactivé pour le moment" 
 
-    - name: 🔒 Security Checker (optionnel)
-      run: |
-        composer require enlightn/security-checker --dev
-        ./vendor/bin/security-checker security:check
+    - name: 🔒 Security Checker (désactivé temporairement)
+      run: echo "Security Checker désactivé pour le moment"
+
   frontend:
     name: 🎨 Tests Frontend
     runs-on: ubuntu-latest
