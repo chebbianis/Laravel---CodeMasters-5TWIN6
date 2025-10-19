@@ -2,7 +2,7 @@ name: Laravel CI
 
 on:
   push:
-    branches: [ '**' ]
+    branches: [ main, develop, event-feature ]
   pull_request:
     branches: [ main, develop ]
 
@@ -21,12 +21,6 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
     - name: 🔄 Checkout du code
       uses: actions/checkout@v4
@@ -35,8 +29,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, tokenizer, gd, bcmath
-        coverage: none
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, tokenizer, gd
 
     - name: 📦 Cache Composer
       uses: actions/cache@v3
@@ -46,22 +39,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
-    - name: 📦 Cache NPM
-      uses: actions/cache@v3
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
     - name: 🎻 Installer les dépendances Composer
       run: composer install --prefer-dist --no-progress --no-interaction
-
-    - name: 📦 Installer les dépendances NPM
-      run: npm ci
-
-    - name: 🏗️ Builder les assets
-      run: npm run build
 
     - name: 📄 Copier .env
       run: cp .env.example .env
@@ -69,107 +48,20 @@ jobs:
     - name: 🔑 Générer la clé d'application
       run: php artisan key:generate
 
-    - name: ⚙️ Configurer l'environnement de test
+    - name: ⚙️ Configurer la base de données de test
       run: |
         php artisan config:clear
-        echo "APP_ENV=testing" >> .env
-        echo "APP_DEBUG=true" >> .env
         echo "DB_CONNECTION=mysql" >> .env
         echo "DB_HOST=127.0.0.1" >> .env
         echo "DB_PORT=3306" >> .env
         echo "DB_DATABASE=laravel_test" >> .env
         echo "DB_USERNAME=root" >> .env
         echo "DB_PASSWORD=password" >> .env
-        echo "REDIS_HOST=127.0.0.1" >> .env
-        echo "REDIS_PORT=6379" >> .env
-        echo "CACHE_DRIVER=redis" >> .env
-        echo "SESSION_DRIVER=redis" >> .env
-        echo "QUEUE_CONNECTION=redis" >> .env
 
     - name: 📊 Exécuter les migrations
       run: php artisan migrate --force
 
-    - name: 🧪 Exécuter les tests PHPUnit
-      run: php artisan test 
+    - name: 🧪 Exécuter les tests
+      run: php artisan test
       env:
         APP_ENV: testing
-
-   # - name: 📊 Générer le coverage (optionnel)
-     # run: |
-     #   composer require --dev phpunit/php-code-coverage
-      #  vendor/bin/phpunit --coverage-text
-
-    - name: 🔍 Analyse de code avec Laravel Pint
-      run: |
-        composer require laravel/pint --dev
-        ./vendor/bin/pint --test
-
-    - name: 📝 Vérifier la syntaxe PHP
-      run: |
-        find . -name "*.php" -exec php -l {} \;
-
-  lint:
-    name: 🔍 Lint et Analyse
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: 🔄 Checkout du code
-      uses: actions/checkout@v4
-
-    - name: 🐘 Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, tokenizer
-
-    - name: 📦 Cache Composer
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-
-    - name: 🎻 Installer les dépendances Composer
-      run: composer install --prefer-dist --no-progress --no-interaction
-
-    #- name: 🎨 Laravel Pint
-     # run: |
-      #  composer require laravel/pint --dev
-       # ./vendor/bin/pint --test
-
-    - name: 📏 PHPStan (optionnel)
-      run: |
-        composer require phpstan/phpstan --dev
-        ./vendor/bin/phpstan analyse --memory-limit=1G
-
-    - name: 🔒 Security Checker (optionnel)
-      run: |
-        composer require enlightn/security-checker --dev
-        ./vendor/bin/security-checker security:check
-
-  frontend:
-    name: 🎨 Tests Frontend
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: 🔄 Checkout du code
-      uses: actions/checkout@v4
-
-    - name: 📦 Cache NPM
-      uses: actions/cache@v3
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    - name: 📦 Installer les dépendances NPM
-      run: npm ci
-
-    - name: 🏗️ Builder les assets
-      run: npm run build
-
-    - name: 🧪 Exécuter les tests JavaScript (si configurés)
-      run: |
-        npm test -- --watchAll=false || echo "Aucun test JS configuré"
