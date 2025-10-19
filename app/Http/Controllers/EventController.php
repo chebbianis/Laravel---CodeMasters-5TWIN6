@@ -7,6 +7,11 @@ use App\Models\Event;
 use App\Models\Participation;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon; // ⭐ AJOUT
+use Barryvdh\DomPDF\Facade\Pdf; // ⭐ AJOUT
+use Maatwebsite\Excel\Facades\Excel; // ⭐ AJOUT
+use App\Exports\EventsExport; // ⭐ AJOUT
+use App\Exports\ParticipationsExport; // ⭐ AJOUT
 
 class EventController extends Controller
 {
@@ -120,7 +125,53 @@ class EventController extends Controller
     }
 
     public function export($format) {
-        return "Export demandé au format : " . $format;
+        $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
+        
+        switch ($format) {
+            case 'pdf':
+                $events = Event::withCount(['participations' => function($query) {
+                    $query->where('status', 'confirmed');
+                }])->get();
+                
+                $pdf = Pdf::loadView('exports.events-pdf', compact('events'));
+                return $pdf->download("evenements_{$timestamp}.pdf");
+                
+            case 'csv':
+                return Excel::download(new EventsExport, "evenements_{$timestamp}.csv", \Maatwebsite\Excel\Excel::CSV);
+                
+            case 'excel':
+                return Excel::download(new EventsExport, "evenements_{$timestamp}.xlsx");
+                
+            default:
+                return back()->with('error', 'Format non supporté');
+        }
+    }
+
+    public function exportParticipations($format) {
+        $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
+        
+        switch ($format) {
+            case 'pdf':
+                $participations = Participation::with('event')->get();
+                $stats = [
+                    'total' => $participations->count(),
+                    'confirmed' => $participations->where('status', 'confirmed')->count(),
+                    'pending' => $participations->where('status', 'pending')->count(),
+                    'cancelled' => $participations->where('status', 'cancelled')->count(),
+                ];
+                
+                $pdf = Pdf::loadView('exports.participations-pdf', compact('participations', 'stats'));
+                return $pdf->download("participations_{$timestamp}.pdf");
+                
+            case 'csv':
+                return Excel::download(new ParticipationsExport, "participations_{$timestamp}.csv", \Maatwebsite\Excel\Excel::CSV);
+                
+            case 'excel':
+                return Excel::download(new ParticipationsExport, "participations_{$timestamp}.xlsx");
+                
+            default:
+                return back()->with('error', 'Format non supporté');
+        }
     }
 
     // Méthodes pour l'analyse de sentiment

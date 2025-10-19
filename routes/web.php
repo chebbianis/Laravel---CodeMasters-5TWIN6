@@ -76,11 +76,11 @@ Route::get('/evenements', [EventController::class, 'eventsFront'])->name('events
 Route::prefix('events')->group(function () {
     Route::get('participations', [EventController::class, 'participations'])->name('events.participations');
 
-    // Routes d'export
-    Route::get('participations/export/{format}', [EventController::class, 'export'])->name('events.participations.export');
-
-    // Route newsletter (optionnelle)
-    Route::get('participations/newsletter', [EventController::class, 'newsletter'])->name('events.participations.newsletter');
+// Routes d'export
+Route::get('/events/export/{format}', [EventController::class, 'export'])->name('events.export');
+Route::get('/participations/export/{format}', [EventController::class, 'exportParticipations'])->name('participations.export');
+ // Route newsletter (optionnelle)
+ Route::get('participations/newsletter', [EventController::class, 'newsletter'])->name('events.participations.newsletter');
 });
 
 // ⚡ Ajout des routes pour confirmer / annuler une participation

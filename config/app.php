@@ -123,4 +123,11 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'aliases' => [
+    // ...
+    'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
+    'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+    'Str' => Illuminate\Support\Str::class,
+],
+
 ];

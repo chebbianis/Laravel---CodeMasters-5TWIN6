@@ -291,15 +291,17 @@
         </div>
 
         <!-- Export Section -->
-        <div class="export-section">
-            <h3>Exporter les données</h3>
-            <div class="export-buttons">
-                <a href="{{ route('events.participations.export', ['format'=>'excel']) }}" class="btn btn-export">📊 Export Excel</a>
-                <a href="{{ route('events.participations.export', ['format'=>'csv']) }}" class="btn btn-csv">📄 Export CSV</a>
-                <a href="{{ route('events.participations.export', ['format'=>'pdf']) }}" class="btn btn-pdf">📋 Liste PDF</a>
-                <a href="{{ route('events.participations.newsletter') }}" class="btn">📧 Envoyer Newsletter</a>
-            </div>
-        </div>
+        <div class="export-buttons">
+    <a href="{{ route('participations.export', 'pdf') }}" class="btn btn-danger">
+        <i class="fas fa-file-pdf"></i> PDF
+    </a>
+    <a href="{{ route('participations.export', 'csv') }}" class="btn btn-success">
+        <i class="fas fa-file-csv"></i> CSV
+    </a>
+    <a href="{{ route('participations.export', 'excel') }}" class="btn btn-primary">
+        <i class="fas fa-file-excel"></i> Excel
+    </a>
+</div>
 
         <!-- Event Tabs dynamiques -->
         <div class="event-tabs">
