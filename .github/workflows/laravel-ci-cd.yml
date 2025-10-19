@@ -94,10 +94,10 @@ jobs:
       env:
         APP_ENV: testing
 
-    - name: 📊 Générer le coverage (optionnel)
-      run: |
-        composer require --dev phpunit/php-code-coverage
-        vendor/bin/phpunit --coverage-text
+   # - name: 📊 Générer le coverage (optionnel)
+     # run: |
+     #   composer require --dev phpunit/php-code-coverage
+      #  vendor/bin/phpunit --coverage-text
 
     - name: 🔍 Analyse de code avec Laravel Pint
       run: |
@@ -133,10 +133,10 @@ jobs:
     - name: 🎻 Installer les dépendances Composer
       run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: 🎨 Laravel Pint
-      run: |
-        composer require laravel/pint --dev
-        ./vendor/bin/pint --test
+    #- name: 🎨 Laravel Pint
+     # run: |
+      #  composer require laravel/pint --dev
+       # ./vendor/bin/pint --test
 
     - name: 📏 PHPStan (optionnel)
       run: |
