@@ -139,10 +139,9 @@ jobs:
        # ./vendor/bin/pint --test
 
     - name: 📏 PHPStan (optionnel)
-      run: |
-        composer require phpstan/phpstan --dev
-        ./vendor/bin/phpstan analyse --memory-limit=1G
-
+  run: |
+    composer require phpstan/phpstan --dev
+    ./vendor/bin/phpstan analyse app/ database/ routes/ --memory-limit=1G
     - name: 🔒 Security Checker (optionnel)
       run: |
         composer require enlightn/security-checker --dev
