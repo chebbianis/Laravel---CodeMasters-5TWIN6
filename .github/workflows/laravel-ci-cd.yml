@@ -90,7 +90,7 @@ jobs:
       run: php artisan migrate --force
 
     - name: 🧪 Exécuter les tests PHPUnit
-      run: php artisan test --verbose
+      run: php artisan test 
       env:
         APP_ENV: testing
 
