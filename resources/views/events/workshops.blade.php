@@ -40,11 +40,58 @@
         .event-type.repair { background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); }
         .event-card .event-content { padding: 2rem; }
         .event-card .event-title { font-size: 1.4rem; font-weight: 600; color: #333; margin-bottom: 1rem; }
-        .event-info { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 2rem; }
+        .event-info { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem; }
         .event-info-item { display: flex; align-items: center; gap: 0.5rem; color: #666; }
         .event-actions { display: flex; gap: 1rem; }
         .btn-edit { background: #17a2b8; flex: 1; }
         .btn-delete { background: #dc3545; flex: 1; }
+
+        /* Styles pour les statistiques d'avis */
+        .event-stats {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .no-feedback {
+            text-align: center;
+            color: #888;
+        }
+
+        /* NOUVEAU : Styles pour la gestion des places */
+        .places-available {
+            color: #28a745;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .places-full {
+            color: #dc3545;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
 
         /* Add/Edit Event Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
@@ -64,6 +111,7 @@
             .page-header { flex-direction: column; gap: 1rem; text-align: center; }
             .filters { flex-direction: column; }
             .events-grid { grid-template-columns: 1fr; }
+            .stats-row { flex-direction: column; gap: 1rem; }
         }
     </style>
 </head>
@@ -140,9 +188,45 @@
                         </div>
                         <div class="event-info-item">
                             <span>👥</span>
-                            <span>{{ $event->participations->count() }}/{{ $event->max_participants }} participants</span>
+                            <span>
+                                {{ $event->participations_count }}/{{ $event->max_participants }} participants
+                                @if($event->participations_count >= $event->max_participants)
+                                    <span class="places-full">• COMPLET</span>
+                                @else
+                                    <span class="places-available">• {{ $event->max_participants - $event->participations_count }} places libres</span>
+                                @endif
+                            </span>
                         </div>
                     </div>
+
+                    <!-- Statistiques des avis -->
+                    <div class="event-stats">
+                        @if($event->rating_count > 0)
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <span class="stat-icon">⭐</span>
+                                <span class="stat-value">{{ number_format($event->average_rating, 1) }}/5</span>
+                                <span class="stat-label">({{ $event->rating_count }} avis)</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">😊</span>
+                                <span class="stat-value">{{ $event->positive_feedbacks }}</span>
+                                <span class="stat-label">positifs</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">😞</span>
+                                <span class="stat-value">{{ $event->negative_feedbacks }}</span>
+                                <span class="stat-label">négatifs</span>
+                            </div>
+                        </div>
+                        @else
+                        <div class="no-feedback">
+                            <span class="stat-icon">📝</span>
+                            <span class="stat-label">Aucun avis pour le moment</span>
+                        </div>
+                        @endif
+                    </div>
+
                     <div class="event-actions">
                         <button class="btn btn-edit"
                             onclick="openEditModal(

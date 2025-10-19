@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ParticipationController;
+use App\Http\Controllers\FeedbackController; // ⭐ IMPORTANT
 use App\Models\Event;
 
 // Page d'accueil avec login/inscription
@@ -69,10 +70,7 @@ Route::get('events/participations', [EventController::class, 'participations'])-
 Route::post('/participations', [ParticipationController::class, 'store'])->name('participations.store');
 Route::delete('/participations/{participation}', [ParticipationController::class, 'destroy'])->name('participations.destroy');
 
-Route::get('/evenements', function () {
-    $events = Event::orderBy('date', 'asc')->get();
-    return view('events.events-front', compact('events'));
-})->name('events-front');
+Route::get('/evenements', [EventController::class, 'eventsFront'])->name('events-front');
 
 // Routes liées aux événements
 Route::prefix('events')->group(function () {
@@ -90,6 +88,17 @@ Route::prefix('participations')->group(function () {
     Route::post('{participation}/confirm', [ParticipationController::class, 'confirm'])->name('participations.confirm');
     Route::post('{participation}/cancel', [ParticipationController::class, 'cancel'])->name('participations.cancel');
 });
+
+// Routes pour l'analyse de sentiment
+Route::post('/events/{event}/analyze-feedback', [EventController::class, 'analyzeEventFeedback'])->name('events.analyze-feedback');
+Route::get('/events/sentiment-stats', [EventController::class, 'getSentimentStats'])->name('events.sentiment-stats');
+Route::post('/events/analyze-all', [EventController::class, 'analyzeAllEvents'])->name('events.analyze-all');
+Route::post('/participations/{participation}/add-feedback', [ParticipationController::class, 'addFeedback'])->name('participations.add-feedback');
+Route::post('/participations/{participation}/analyze-feedback', [ParticipationController::class, 'analyzeParticipantFeedback'])->name('participations.analyze-feedback');
+
+// ⭐⭐ ROUTES POUR LES FEEDBACKS (CORRIGÉ)
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+Route::get('/events/{event}/feedbacks', [FeedbackController::class, 'showEventFeedbacks'])->name('events.feedbacks');
 
 // Resource events
 Route::resource('events', EventController::class)->except(['edit']);

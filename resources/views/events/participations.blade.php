@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Inscriptions - Waste To Product</title>
     <style>
-        /* CSS identique au template original */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; line-height: 1.6; }
 
@@ -64,6 +63,90 @@
         .empty-state { text-align:center; padding:4rem 2rem; color:#666; }
         .empty-state .icon { font-size:4rem; margin-bottom:1rem; opacity:0.5; }
 
+        /* NOUVEAU : Section Analyse des Avis */
+        .sentiment-analysis-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .events-sentiment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .event-sentiment-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #9C27B0;
+        }
+        .sentiment-details {
+            margin-top: 1rem;
+        }
+        .rating-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .stars {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .rating-value {
+            margin-left: 0.5rem;
+            font-weight: bold;
+        }
+        .rating-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .sentiment-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .sentiment-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sentiment-bar .label {
+            width: 80px;
+            font-size: 0.9rem;
+        }
+        .sentiment-bar .value {
+            width: 30px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .bar .fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .sentiment-bar.positive .fill { background: #4CAF50; }
+        .sentiment-bar.neutral .fill { background: #FFC107; }
+        .sentiment-bar.negative .fill { background: #F44336; }
+        .no-data {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 1rem;
+        }
+
         @media (max-width:768px) {
             .sidebar { transform:translateX(-100%); }
             .main-content { margin-left:0; padding:1rem; }
@@ -71,6 +154,7 @@
             .participants-table { font-size:0.8rem; }
             .filters { flex-direction:column; }
             .export-buttons { flex-direction:column; }
+            .events-sentiment-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -94,6 +178,63 @@
         <div class="page-header">
             <h1>Gestion des Inscriptions</h1>
             <p>Suivez et gérez les participants à vos événements et ateliers</p>
+        </div>
+
+        <!-- NOUVEAU : Section Analyse des Avis -->
+        <div class="sentiment-analysis-section">
+            <h3>📊 Analyse des Avis - Tous les Événements</h3>
+            
+            <div class="events-sentiment-grid">
+                @foreach($events as $event)
+                <div class="event-sentiment-card">
+                    <h4>{{ $event->title }}</h4>
+                    
+                    @if($event->rating_count > 0)
+                    <div class="sentiment-details">
+                        <div class="rating-section">
+                            <div class="stars">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= floor($event->average_rating))
+                                        <span>⭐</span>
+                                    @else
+                                        <span>☆</span>
+                                    @endif
+                                @endfor
+                                <span class="rating-value">{{ number_format($event->average_rating, 1) }}/5</span>
+                            </div>
+                            <div class="rating-count">{{ $event->rating_count }} avis</div>
+                        </div>
+                        
+                        <div class="sentiment-bars">
+                            <div class="sentiment-bar positive">
+                                <span class="label">😊 Positifs</span>
+                                <span class="value">{{ $event->positive_feedbacks }}</span>
+                                <div class="bar">
+                                    <div class="fill" style="width: {{ $event->rating_count > 0 ? ($event->positive_feedbacks / $event->rating_count * 100) : 0 }}%"></div>
+                                </div>
+                            </div>
+                            <div class="sentiment-bar neutral">
+                                <span class="label">😐 Neutres</span>
+                                <span class="value">{{ $event->neutral_feedbacks }}</span>
+                                <div class="bar">
+                                    <div class="fill" style="width: {{ $event->rating_count > 0 ? ($event->neutral_feedbacks / $event->rating_count * 100) : 0 }}%"></div>
+                                </div>
+                            </div>
+                            <div class="sentiment-bar negative">
+                                <span class="label">😞 Négatifs</span>
+                                <span class="value">{{ $event->negative_feedbacks }}</span>
+                                <div class="bar">
+                                    <div class="fill" style="width: {{ $event->rating_count > 0 ? ($event->negative_feedbacks / $event->rating_count * 100) : 0 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @else
+                    <div class="no-data">Aucun avis pour le moment</div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
         </div>
 
         <!-- Stats dynamiques -->
@@ -122,7 +263,7 @@
 
         <!-- Filters dynamiques -->
         <div class="filters">
-            <form method="GET" action="{{ route('events.participations') }}" class="flex flex-wrap gap-4 items-end">
+            <form method="GET" action="{{ route('events.participations') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end;">
                 <div class="filter-group">
                     <label>Événement</label>
                     <select name="event">

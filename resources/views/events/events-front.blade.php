@@ -69,24 +69,85 @@
         .btn:hover { transform:translateY(-2px); }
         footer { background: rgba(0,0,0,0.8); color:white; text-align:center; padding:2rem 0; margin-top:4rem; }
 
-        /* Modal */
+        /* Modal d'inscription */
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:1000; }
         .modal-content { background:#fff; margin:5% auto; padding:2rem; border-radius:12px; width:90%; max-width:400px; position:relative; }
         .close-modal { position:absolute; top:1rem; right:1rem; font-size:2rem; background:none; border:none; color:#888; cursor:pointer; }
         .form-group { margin-bottom:1rem; }
         label { display:block; margin-bottom:0.3rem; color:#333; }
-        input[type="text"], input[type="email"] { width:100%; padding:8px; border:1px solid #ccc; border-radius:6px; }
-        @media(max-width:768px) { .nav-links { display:none; } .events-grid { grid-template-columns:1fr; } .hero h1 { font-size:2rem; } }
+        input[type="text"], input[type="email"], textarea { width:100%; padding:8px; border:1px solid #ccc; border-radius:6px; }
+        textarea { height: 100px; resize: vertical; }
+
+        /* NOUVEAU : Modal de feedback */
+        .feedback-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-top: 0.5rem;
+        }
+
+        .feedback-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .feedback-section h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        /* NOUVEAU : Styles pour les étoiles et statistiques */
+        .rating-display {
+            margin-top: 0.5rem;
+        }
+        .stars {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        .rating-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-left: 0.5rem;
+        }
+        .sentiment-stats {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* NOUVEAU : Styles pour la gestion des places */
+        .places-available {
+            color: #28a745;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .places-full {
+            color: #dc3545;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .btn-disabled {
+            background: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+        }
+
+        @media(max-width:768px) { 
+            .nav-links { display:none; } 
+            .events-grid { grid-template-columns:1fr; } 
+            .hero h1 { font-size:2rem; } 
+        }
     </style>
 </head>
 <body>
 <header>
     <div class="container">
-        <div class="logo">🔄 Waste To Product</div>
-        <div class="nav-links">
-            <a href="{{ route('home') }}">Accueil</a>
-            <a href="{{ route('events-front') }}" class="active">Événements & Ateliers</a>
-        </div>
+        <nav>
+            <div class="logo">🔄 Waste To Product</div>
+            <div class="nav-links">
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Accueil</a>
+                <a href="{{ route('events-front') }}" class="{{ request()->routeIs('events-front') ? 'active' : '' }}">Événements & Ateliers</a>
+            </div>
+        </nav>
     </div>
 </header>
 
@@ -114,9 +175,69 @@
                             <div class="event-info-item">📅 {{ \Carbon\Carbon::parse($event->date)->translatedFormat('l d F Y') }}</div>
                             <div class="event-info-item">⏰ {{ \Carbon\Carbon::parse($event->date)->format('H:i') }}</div>
                             <div class="event-info-item">📍 {{ $event->location }}</div>
-                            <div class="event-info-item">👥 {{ $event->participations->count() }}/{{ $event->max_participants }} participants</div>
+                            <div class="event-info-item">
+                                👥 {{ $event->participations_count }}/{{ $event->max_participants }} participants
+                                @if($event->participations_count >= $event->max_participants)
+                                    <span class="places-full">• COMPLET</span>
+                                @else
+                                    <span class="places-available">• {{ $event->max_participants - $event->participations_count }} places disponibles</span>
+                                @endif
+                            </div>
                         </div>
-                        <button class="btn" onclick="openParticipationModal({{ $event->id }}, '{{ addslashes($event->title) }}')">Participer</button>
+                        
+                        <!-- Boutons d'action -->
+                        @if($event->participations_count < $event->max_participants)
+                            <button class="btn" onclick="openParticipationModal({{ $event->id }}, '{{ addslashes($event->title) }}')">
+                                Participer ({{ $event->max_participants - $event->participations_count }} places restantes)
+                            </button>
+                        @else
+                            <button class="btn btn-disabled" disabled>
+                                ❌ Complet
+                            </button>
+                        @endif
+                        
+                        <!-- Bouton pour donner son avis -->
+                        @if($event->feedbacks_count > 0)
+                            <button class="btn feedback-btn" onclick="openFeedbackModal({{ $event->id }}, '{{ addslashes($event->title) }}')">
+                                💬 Donner mon avis
+                            </button>
+                        @else
+                            <button class="btn feedback-btn" onclick="openFeedbackModal({{ $event->id }}, '{{ addslashes($event->title) }}')">
+                                💬 Soyez le premier à donner votre avis
+                            </button>
+                        @endif
+
+                        <!-- Section étoiles et statistiques -->
+                        @if($event->rating_count > 0)
+                        <div class="feedback-section">
+                            <h4>⭐ Notes des participants :</h4>
+                            <div class="rating-display">
+                                <div class="stars">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= floor($event->average_rating))
+                                            <span>⭐</span>
+                                        @elseif($i - 0.5 <= $event->average_rating)
+                                            <span>⭐</span>
+                                        @else
+                                            <span>☆</span>
+                                        @endif
+                                    @endfor
+                                    <span class="rating-text">({{ number_format($event->average_rating, 1) }}/5 - {{ $event->rating_count }} avis)</span>
+                                </div>
+                                <div class="sentiment-stats">
+                                    <small>
+                                        😊 {{ $event->positive_feedbacks }} positifs • 
+                                        😐 {{ $event->neutral_feedbacks }} neutres • 
+                                        😞 {{ $event->negative_feedbacks }} négatifs
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        @else
+                        <div class="feedback-section">
+                            <h4>⭐ Soyez le premier à noter !</h4>
+                        </div>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -140,8 +261,54 @@
                 <label>Email</label>
                 <input type="email" name="participant_email" required>
             </div>
+            <div class="form-group">
+                <label>Téléphone (optionnel)</label>
+                <input type="text" name="participant_phone">
+            </div>
             <button type="submit" class="btn">Valider l'inscription</button>
             <button type="button" class="btn" style="background:#888;" onclick="closeParticipationModal()">Annuler</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de feedback -->
+<div id="feedbackModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeFeedbackModal()">&times;</button>
+        <h2 id="feedbackEventTitle">Donner mon avis</h2>
+        <form id="feedbackForm" method="POST" action="{{ route('feedback.store') }}">
+            @csrf
+            <input type="hidden" name="event_id" id="feedback_event_id">
+            
+            <div class="form-group">
+                <label>Votre nom</label>
+                <input type="text" name="participant_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Votre email</label>
+                <input type="email" name="participant_email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Votre avis sur l'événement</label>
+                <textarea name="feedback" placeholder="Partagez votre expérience : qu'avez-vous pensé de l'événement ? Que pourrions-nous améliorer ?..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Note (sur 5)</label>
+                <select name="rating" required>
+                    <option value="">Choisir une note</option>
+                    <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                    <option value="4">⭐⭐⭐⭐ Très bien</option>
+                    <option value="3">⭐⭐⭐ Bien</option>
+                    <option value="2">⭐⭐ Moyen</option>
+                    <option value="1">⭐ Peut mieux faire</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn">Envoyer mon avis</button>
+            <button type="button" class="btn" style="background:#888;" onclick="closeFeedbackModal()">Annuler</button>
         </form>
     </div>
 </div>
@@ -153,17 +320,35 @@
 </footer>
 
 <script>
+    // Fonctions existantes pour la participation
     function openParticipationModal(eventId, eventTitle){
         document.getElementById('participationModal').style.display='block';
         document.getElementById('modal_event_id').value=eventId;
-        document.getElementById('modalEventTitle').innerText='Inscription à l\'événement : '+eventTitle;
+        document.getElementById('modalEventTitle').innerText='Inscription à : '+eventTitle;
     }
+    
     function closeParticipationModal(){
         document.getElementById('participationModal').style.display='none';
     }
+
+    // Fonctions pour le feedback
+    function openFeedbackModal(eventId, eventTitle){
+        document.getElementById('feedbackModal').style.display='block';
+        document.getElementById('feedback_event_id').value=eventId;
+        document.getElementById('feedbackEventTitle').innerText='Votre avis sur : '+eventTitle;
+    }
+    
+    function closeFeedbackModal(){
+        document.getElementById('feedbackModal').style.display='none';
+    }
+
+    // Fermer les modales en cliquant à l'extérieur
     window.onclick=function(event){
         var modal=document.getElementById('participationModal');
+        var feedbackModal=document.getElementById('feedbackModal');
+        
         if(event.target==modal){ closeParticipationModal(); }
+        if(event.target==feedbackModal){ closeFeedbackModal(); }
     }
 </script>
 </body>
